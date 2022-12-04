@@ -59,6 +59,7 @@ const ACCOUNT3_ARG: H160 = h160!("0xdabe88a65760c662ee3f07dee162409f7b20b694");
 const FEE_RATE: u64 = 1000;
 const GENESIS_JSON: &str = include_str!("../test-data/genesis_block.json");
 const SUDT_BIN: &[u8] = include_bytes!("../test-data/simple_udt");
+const XUDT_BIN: &[u8] = include_bytes!("../test-data/xudt_rce");
 const ACP_BIN: &[u8] = include_bytes!("../test-data/anyone_can_pay");
 const CHEQUE_BIN: &[u8] = include_bytes!("../test-data/ckb-cheque-script");
 const ALWAYS_SUCCESS_BIN: &[u8] = include_bytes!("../test-data/always_success");

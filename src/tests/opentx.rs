@@ -9,9 +9,9 @@ use crate::{
         build_sighash_script, init_context,
         omni_lock::{build_omnilock_script, build_omnilock_unlockers, OMNILOCK_BIN},
         ACCOUNT0_ARG, ACCOUNT0_KEY, ACCOUNT1_ARG, ACCOUNT1_KEY, ACCOUNT2_ARG, ACCOUNT2_KEY,
-        ACCOUNT3_ARG, ACCOUNT3_KEY, FEE_RATE, SUDT_BIN,
+        ACCOUNT3_ARG, ACCOUNT3_KEY, FEE_RATE, SUDT_BIN, XUDT_BIN,
     },
-    traits::{CellCollector, CellQueryOptions, SecpCkbRawKeySigner},
+    traits::{CellCollector, CellDepResolver, CellQueryOptions, SecpCkbRawKeySigner},
     tx_builder::{
         omni_lock::OmniLockTransferBuilder, transfer::CapacityTransferBuilder,
         udt::UdtTransferBuilder,
@@ -27,8 +27,8 @@ use crate::{
 use ckb_crypto::secp::{Pubkey, SECP256K1};
 use ckb_types::{
     bytes::Bytes,
-    core::{Capacity, ScriptHashType},
-    packed::{CellInput, CellOutput, Script, WitnessArgs},
+    core::{Capacity, ScriptHashType, TransactionView},
+    packed::{CellInput, CellInputBuilder, CellOutput, Script, WitnessArgs},
     prelude::*,
     H160, H256,
 };
@@ -747,5 +747,124 @@ fn test_opentx_udt_open_buy() {
         .map(|d| d.raw_data())
         .collect::<Vec<_>>();
     assert_eq!(outputs_data[1..3], expected_outputs_data);
+    ctx.verify(tx, FEE_RATE).unwrap();
+}
+
+#[test]
+fn test_opentx_alice_burn_udt() {
+    // ACCOUNT1(alice) will burn 51 UDT
+    let unlock_mode = OmniUnlockMode::Normal;
+    let mut alice_cfg = build_simple_config(ACCOUNT1_KEY);
+    alice_cfg.set_opentx_mode();
+    let alice_omni_lock = build_omnilock_script(&alice_cfg);
+    let alice_key = secp256k1::SecretKey::from_slice(ACCOUNT1_KEY.as_bytes()).unwrap();
+    let bob = build_sighash_script(ACCOUNT2_ARG);
+
+    // init ctx
+    let xudt_data_hash = H256::from(blake2b_256(XUDT_BIN));
+    let owner = build_sighash_script(H160::default());
+    let xudt_type_script = Script::new_builder()
+        .code_hash(xudt_data_hash.pack())
+        .hash_type(ScriptHashType::Data1.into())
+        .args(owner.calc_script_hash().as_bytes().pack())
+        .build();
+    let xudt_input = CellInput::new(random_out_point(), 0);
+    let xudt_output = CellOutput::new_builder()
+        .capacity(ONE_CKB.pack())
+        .lock(alice_omni_lock.clone())
+        .type_(Some(xudt_type_script.clone()).pack())
+        .build();
+    let xudt_capacity = xudt_output
+        .occupied_capacity(Capacity::bytes(16).unwrap())
+        .unwrap()
+        .as_u64();
+    let xudt_output = xudt_output
+        .as_builder()
+        .capacity(xudt_capacity.pack())
+        .build();
+    let xudt_data = Bytes::from(51u128.to_le_bytes().to_vec());
+    let mut ctx = init_context(
+        vec![(OMNILOCK_BIN, true), (XUDT_BIN, false)],
+        vec![(bob.clone(), Some(100 * ONE_CKB))],
+    );
+    ctx.add_live_cell(
+        xudt_input.clone(),
+        xudt_output.clone(),
+        xudt_data.clone(),
+        None,
+    );
+
+    println!("inputs.len() {:?}", ctx.inputs.len());
+    println!("inputs.len() {:?}", ctx.cell_deps.len());
+
+    // build opentx
+    let tx_builder = TransactionView::new_advanced_builder();
+    let out_point = ctx.inputs[1].input.previous_output();
+    let input = CellInputBuilder::default()
+        .previous_output(out_point)
+        .build();
+    let mut tx = tx_builder
+        .input(input)
+        .output(xudt_output)
+        .output_data(Bytes::from(0u128.to_le_bytes().to_vec()).pack())
+        .cell_dep(ctx.resolve(&alice_omni_lock).unwrap())
+        .cell_dep(ctx.resolve(&xudt_type_script).unwrap())
+        .build();
+
+    // update opentx input list
+    let mut rng = rand::thread_rng();
+    let salt: u32 = rng.gen();
+    let wit = OpentxWitness::new_sig_all_relative(&tx, Some(salt)).unwrap();
+    alice_cfg.set_opentx_input(wit);
+    tx = OmniLockTransferBuilder::update_opentx_witness(
+        tx,
+        &alice_cfg,
+        OmniUnlockMode::Normal,
+        &ctx,
+        &alice_omni_lock,
+    )
+    .unwrap();
+
+    // config updated, so unlockers must rebuilt.
+    let unlockers = build_omnilock_unlockers(alice_key, alice_cfg.clone(), unlock_mode);
+    let (new_tx, new_locked_groups) = unlock_tx(tx.clone(), &ctx, &unlockers).unwrap();
+    assert!(new_locked_groups.is_empty());
+    tx = new_tx;
+    println!(
+        "> tx: {}",
+        serde_json::to_string_pretty(&json_types::TransactionView::from(tx.clone())).unwrap()
+    );
+
+    ctx.verify(tx.clone(), 0).unwrap();
+
+    // Build ScriptUnlocker
+    let bob_key = secp256k1::SecretKey::from_slice(ACCOUNT2_KEY.as_bytes()).unwrap();
+    let signer = SecpCkbRawKeySigner::new_with_secret_keys(vec![bob_key]);
+    let sighash_unlocker = SecpSighashUnlocker::from(Box::new(signer) as Box<_>);
+    let sighash_script_id = ScriptId::new_type(SIGHASH_TYPE_HASH.clone());
+    let mut unlockers = HashMap::default();
+    unlockers.insert(
+        sighash_script_id,
+        Box::new(sighash_unlocker) as Box<dyn ScriptUnlocker>,
+    );
+
+    // Build CapacityBalancer
+    let builder = CapacityTransferBuilder::new_with_transaction(vec![], tx);
+    let placeholder_witness = WitnessArgs::new_builder()
+        .lock(Some(Bytes::from(vec![0u8; 65])).pack())
+        .build();
+    let balancer = CapacityBalancer::new_simple(bob.clone(), placeholder_witness, FEE_RATE);
+
+    // Build the transaction
+    let mut cell_collector = ctx.to_live_cells_context();
+    let (tx, _still_locked_groups) = builder
+        .build_unlocked(&mut cell_collector, &ctx, &ctx, &ctx, &balancer, &unlockers)
+        .unwrap();
+
+    println!(
+        "> tx: {}",
+        serde_json::to_string_pretty(&json_types::TransactionView::from(tx.clone())).unwrap()
+    );
+
     ctx.verify(tx, FEE_RATE).unwrap();
 }
