@@ -23,7 +23,7 @@ pub const DAO_OUTPUT_LOC: (usize, usize) = (0, 2);
 pub const SIGHASH_GROUP_OUTPUT_LOC: (usize, usize) = (1, 0);
 pub const MULTISIG_GROUP_OUTPUT_LOC: (usize, usize) = (1, 1);
 
-pub const ONE_CKB: u64 = 100_000_000;
+pub const ONE_CKB: u64 = 1;
 pub const MIN_SECP_CELL_CAPACITY: u64 = 61 * ONE_CKB;
 // mainnet,testnet cellbase maturity
 pub const CELLBASE_MATURITY: EpochNumberWithFraction =
