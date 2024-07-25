@@ -29,22 +29,22 @@ lru = "0.7.1"
 dashmap = "5.4"
 dyn-clone = "1.0"
 
-ckb-types = "0.116.1"
-ckb-dao-utils = "0.116.1"
-ckb-traits = "0.116.1"
-ckb-jsonrpc-types = "0.116.1"
-ckb-hash = "0.116.1"
-ckb-resource = "0.116.1"
-ckb-crypto = { version = "=0.116.1", features = ["secp"] }
-ckb-script = "0.116.1"
+ckb-types = { package = "ckb-types", git = "https://github.com/ethanyuan/ckb", branch = "v0.116.1-branch-chain" }
+ckb-dao-utils = { package = "ckb-dao-utils", git = "https://github.com/ethanyuan/ckb", branch = "v0.116.1-branch-chain" }
+ckb-traits = { package = "ckb-traits", git = "https://github.com/ethanyuan/ckb", branch = "v0.116.1-branch-chain" }
+ckb-jsonrpc-types = { package = "ckb-jsonrpc-types", git = "https://github.com/ethanyuan/ckb", branch = "v0.116.1-branch-chain" }
+ckb-hash = { package = "ckb-hash", git = "https://github.com/ethanyuan/ckb", branch = "v0.116.1-branch-chain" }
+ckb-resource = { package = "ckb-resource", git = "https://github.com/ethanyuan/ckb", branch = "v0.116.1-branch-chain" }
+ckb-crypto = { package = "ckb-crypto", git = "https://github.com/ethanyuan/ckb", branch = "v0.116.1-branch-chain", features = ["secp"] }
+ckb-script = { package = "ckb-script", git = "https://github.com/ethanyuan/ckb", branch = "v0.116.1-branch-chain" }
 bitflags = "1.3.2"
 sha3 = "0.10.1"
 enum-repr-derive = "0.2.0"
 
 # for feature test
 rand = { version = "0.7.3", optional = true }
-ckb-mock-tx-types = { version = "0.116.1" }
-ckb-chain-spec = "0.116.1"
+ckb-mock-tx-types = { package = "ckb-mock-tx-types", git = "https://github.com/ethanyuan/ckb-standalone-debugger", branch = "v0.116.1-branch-chain" }
+ckb-chain-spec = { package = "ckb-chain-spec", git = "https://github.com/ethanyuan/ckb", branch = "v0.116.1-branch-chain" }
 
 sparse-merkle-tree = "0.6.1"
 lazy_static = "1.3.0"
