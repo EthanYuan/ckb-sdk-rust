@@ -2,7 +2,7 @@ use std::fmt;
 use std::ops::Deref;
 use std::str::FromStr;
 
-use crate::constants::ONE_CKB;
+use crate::constants::ONE_CAPACITY_SHANNONS;
 
 #[derive(Default, Clone, Copy, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct HumanCapacity(pub u64);
@@ -30,7 +30,7 @@ impl FromStr for HumanCapacity {
     type Err = String;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let parts = input.trim().split('.').collect::<Vec<_>>();
-        let mut capacity = ONE_CKB
+        let mut capacity = ONE_CAPACITY_SHANNONS
             * parts
                 .first()
                 .ok_or_else(|| "Missing input".to_owned())?
@@ -53,8 +53,8 @@ impl FromStr for HumanCapacity {
 
 impl fmt::Display for HumanCapacity {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        let ckb_part = self.0 / ONE_CKB;
-        let shannon_part = self.0 % ONE_CKB;
+        let ckb_part = self.0 / ONE_CAPACITY_SHANNONS;
+        let shannon_part = self.0 % ONE_CAPACITY_SHANNONS;
         let shannon_part_string = format!("{:0>8}", shannon_part);
         let mut base = 10;
         let mut suffix_zero = 7;
@@ -90,16 +90,16 @@ mod test {
     #[test]
     fn test_human_capacity() {
         for (input, capacity) in &[
-            ("3.0", 3 * ONE_CKB),
-            ("300.0", 300 * ONE_CKB),
+            ("3.0", 3 * ONE_CAPACITY_SHANNONS),
+            ("300.0", 300 * ONE_CAPACITY_SHANNONS),
             ("3.56", 356_000_000),
             ("3.0056", 300_560_000),
             ("3.10056", 310_056_000),
             ("3.10056123", 310_056_123),
             ("0.0056", 560_000),
             ("0.10056123", 10_056_123),
-            ("12345.234", 12345 * ONE_CKB + 23_400_000),
-            ("12345.23442222", 12345 * ONE_CKB + 23_442_222),
+            ("12345.234", 12345 * ONE_CAPACITY_SHANNONS + 23_400_000),
+            ("12345.23442222", 12345 * ONE_CAPACITY_SHANNONS + 23_442_222),
         ] {
             assert_eq!(HumanCapacity::from_str(input).unwrap(), (*capacity).into());
             assert_eq!(HumanCapacity::from(*capacity).to_string(), *input);
@@ -108,7 +108,7 @@ mod test {
         // Parse capacity without decimal part
         assert_eq!(
             HumanCapacity::from_str("12345"),
-            Ok(HumanCapacity::from(12345 * ONE_CKB))
+            Ok(HumanCapacity::from(12345 * ONE_CAPACITY_SHANNONS))
         );
 
         // Parse capacity failed

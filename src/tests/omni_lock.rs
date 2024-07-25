@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    constants::{ONE_CKB, SIGHASH_TYPE_HASH},
+    constants::{ONE_CAPACITY_SHANNONS, SIGHASH_TYPE_HASH},
     test_util::random_out_point,
     tests::{
         build_sighash_script, init_context, omni_lock_util::generate_rc, ACCOUNT0_ARG,
@@ -99,14 +99,14 @@ fn test_omnilock_simple_hash(cfg: OmniLockConfig) {
     let ctx = init_context(
         vec![(OMNILOCK_BIN, true)],
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
-            (sender.clone(), Some(300 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
     let output = CellOutput::new_builder()
-        .capacity((120 * ONE_CKB).pack())
+        .capacity((120 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder =
@@ -215,12 +215,12 @@ fn test_omnilock_simple_hash_rc_input(mut cfg: OmniLockConfig) {
     cfg.set_admin_config(admin_config);
 
     let sender = build_omnilock_script(&cfg);
-    for (lock, capacity_opt) in vec![(sender.clone(), Some(100 * ONE_CKB))] {
+    for (lock, capacity_opt) in vec![(sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS))] {
         ctx.add_simple_live_cell(random_out_point(), lock, capacity_opt);
     }
 
     let output = CellOutput::new_builder()
-        .capacity((110 * ONE_CKB).pack())
+        .capacity((110 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = OmniLockTransferBuilder::new(
@@ -407,12 +407,12 @@ fn test_omnilock_simple_hash_rc(mut cfg: OmniLockConfig, unlock_mode: OmniUnlock
         OmniUnlockMode::Normal => (None, 0),
     };
     let sender = build_omnilock_script(&cfg);
-    for (lock, capacity_opt) in vec![(sender.clone(), Some(300 * ONE_CKB))] {
+    for (lock, capacity_opt) in vec![(sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS))] {
         ctx.add_simple_live_cell(random_out_point(), lock, capacity_opt);
     }
 
     let output = CellOutput::new_builder()
-        .capacity((110 * ONE_CKB).pack())
+        .capacity((110 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = OmniLockTransferBuilder::new(
@@ -517,12 +517,12 @@ fn test_omnilock_simple_hash_rc2(mut cfg: OmniLockConfig) {
     cfg.set_admin_config(admin_config);
 
     let sender = build_omnilock_script(&cfg);
-    for (lock, capacity_opt) in vec![(sender.clone(), Some(300 * ONE_CKB))] {
+    for (lock, capacity_opt) in vec![(sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS))] {
         ctx.add_simple_live_cell(random_out_point(), lock, capacity_opt);
     }
 
     let output = CellOutput::new_builder()
-        .capacity((110 * ONE_CKB).pack())
+        .capacity((110 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = OmniLockTransferBuilder::new(
@@ -595,14 +595,14 @@ fn test_omnilock_transfer_from_multisig() {
     let ctx = init_context(
         vec![(OMNILOCK_BIN, true)],
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
-            (sender.clone(), Some(300 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
     let output = CellOutput::new_builder()
-        .capacity((120 * ONE_CKB).pack())
+        .capacity((120 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder =
@@ -687,16 +687,16 @@ fn test_omnilock_transfer_from_multisig_wl_commnon(unlock_mode: OmniUnlockMode) 
     ));
     let sender = build_omnilock_script(&cfg);
     for (lock, capacity_opt) in vec![
-        (sender.clone(), Some(100 * ONE_CKB)),
-        (sender.clone(), Some(200 * ONE_CKB)),
-        (sender.clone(), Some(300 * ONE_CKB)),
+        (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+        (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+        (sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
     ] {
         ctx.add_simple_live_cell(random_out_point(), lock, capacity_opt);
     }
 
     let receiver = build_sighash_script(ACCOUNT2_ARG);
     let output = CellOutput::new_builder()
-        .capacity((120 * ONE_CKB).pack())
+        .capacity((120 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = OmniLockTransferBuilder::new(
@@ -776,13 +776,13 @@ fn test_omnilock_transfer_from_ownerlock() {
     let ctx = init_context(
         vec![(OMNILOCK_BIN, true)],
         vec![
-            (sender0.clone(), Some(50 * ONE_CKB)),
-            (sender1.clone(), Some(61 * ONE_CKB)),
+            (sender0.clone(), Some(50 * ONE_CAPACITY_SHANNONS)),
+            (sender1.clone(), Some(61 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
     let output = CellOutput::new_builder()
-        .capacity((110 * ONE_CKB).pack())
+        .capacity((110 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver.clone())
         .build();
     let builder =
@@ -799,7 +799,7 @@ fn test_omnilock_transfer_from_ownerlock() {
             (sender1.clone(), placeholder_witness1.clone()),
         ]),
         change_lock_script: None,
-        force_small_change_as_fee: Some(ONE_CKB),
+        force_small_change_as_fee: Some(ONE_CAPACITY_SHANNONS),
     };
 
     let mut cell_collector = ctx.to_live_cells_context();
@@ -859,7 +859,7 @@ fn test_omnilock_transfer_from_ownerlock_wl_admin() {
     let owner_sender = build_sighash_script(ACCOUNT3_ARG);
     let mut ctx = init_context(
         vec![(OMNILOCK_BIN, true)],
-        vec![(owner_sender.clone(), Some(61 * ONE_CKB))],
+        vec![(owner_sender.clone(), Some(61 * ONE_CAPACITY_SHANNONS))],
     );
 
     let owner_hash = H160::from_slice(&owner_sender.calc_script_hash().as_slice()[0..20]).unwrap();
@@ -874,12 +874,12 @@ fn test_omnilock_transfer_from_ownerlock_wl_admin() {
         false,
     ));
     let sender0 = build_omnilock_script(&cfg);
-    for (lock, capacity_opt) in vec![(sender0.clone(), Some(50 * ONE_CKB))] {
+    for (lock, capacity_opt) in vec![(sender0.clone(), Some(50 * ONE_CAPACITY_SHANNONS))] {
         ctx.add_simple_live_cell(random_out_point(), lock, capacity_opt);
     }
 
     let output = CellOutput::new_builder()
-        .capacity((110 * ONE_CKB).pack())
+        .capacity((110 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver.clone())
         .build();
     let builder = OmniLockTransferBuilder::new(
@@ -899,7 +899,7 @@ fn test_omnilock_transfer_from_ownerlock_wl_admin() {
             (owner_sender.clone(), placeholder_witness1.clone()),
         ]),
         change_lock_script: None,
-        force_small_change_as_fee: Some(ONE_CKB),
+        force_small_change_as_fee: Some(ONE_CAPACITY_SHANNONS),
     };
 
     let mut cell_collector = ctx.to_live_cells_context();
@@ -983,12 +983,12 @@ fn test_omnilock_transfer_from_acp() {
     let ctx = init_context(
         vec![(OMNILOCK_BIN, true)],
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
         ],
     );
     let output = CellOutput::new_builder()
-        .capacity((120 * ONE_CKB).pack())
+        .capacity((120 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
 
@@ -1055,12 +1055,12 @@ fn test_omnilock_transfer_to_acp() {
     let ctx = init_context(
         vec![(OMNILOCK_BIN, true)],
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (receiver.clone(), Some(61 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (receiver.clone(), Some(61 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
-    let acp_receiver = AcpTransferReceiver::new(receiver.clone(), 10 * ONE_CKB);
+    let acp_receiver = AcpTransferReceiver::new(receiver.clone(), 10 * ONE_CAPACITY_SHANNONS);
     let builder = AcpTransferBuilder::new(vec![acp_receiver]);
 
     let placeholder_witness1 = WitnessArgs::new_builder()
@@ -1091,7 +1091,7 @@ fn test_omnilock_transfer_to_acp() {
     assert_eq!(tx.cell_deps().len(), 2);
     assert_eq!(tx.inputs().len(), 2);
     let acp_output = CellOutput::new_builder()
-        .capacity(((61 + 10) * ONE_CKB).pack())
+        .capacity(((61 + 10) * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     assert_eq!(tx.outputs().len(), 2);
@@ -1147,13 +1147,13 @@ fn test_omnilock_udt_transfer() {
         vec![(OMNILOCK_BIN, true), (SUDT_BIN, false)],
         vec![
             // transaction fee pool
-            (sender.clone(), Some(100 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
     let sender_input = CellInput::new(random_out_point(), 0);
     let sender_output = CellOutput::new_builder()
-        .capacity((200 * ONE_CKB).pack())
+        .capacity((200 * ONE_CAPACITY_SHANNONS).pack())
         .lock(sender.clone())
         .type_(Some(type_script.clone()).pack())
         .build();
@@ -1163,7 +1163,7 @@ fn test_omnilock_udt_transfer() {
     let receiver_acp_lock = build_omnilock_script(&receiver_cfg);
     let receiver_input = CellInput::new(random_out_point(), 0);
     let receiver_output = CellOutput::new_builder()
-        .capacity((200 * ONE_CKB).pack())
+        .capacity((200 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver_acp_lock.clone())
         .type_(Some(type_script.clone()).pack())
         .build();
@@ -1258,13 +1258,13 @@ fn test_omnilock_simple_hash_timelock(mut cfg: OmniLockConfig) {
     let prepare_out_point = random_out_point();
     let prepare_input = CellInput::new(prepare_out_point, since.value());
     let prepare_output = CellOutput::new_builder()
-        .capacity((300 * ONE_CKB + 1000).pack())
+        .capacity((300 * ONE_CAPACITY_SHANNONS + 1000).pack())
         .lock(sender.clone())
         .build();
     ctx.add_live_cell(prepare_input, prepare_output, Bytes::default(), None);
 
     let output = CellOutput::new_builder()
-        .capacity((200 * ONE_CKB).pack())
+        .capacity((200 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder =
@@ -1371,7 +1371,7 @@ fn test_omnilock_sudt_supply() {
     );
     let input = CellInput::new(random_out_point(), 0);
     let output = CellOutput::new_builder()
-        .capacity((1000 * ONE_CKB + 1000).pack())
+        .capacity((1000 * ONE_CAPACITY_SHANNONS + 1000).pack())
         .lock(sender.clone())
         .type_(Some(info_cell_type_script.clone()).pack())
         .build();
@@ -1381,14 +1381,14 @@ fn test_omnilock_sudt_supply() {
     info_cell.current_supply = 3000u128;
     let output_supply_data = info_cell.pack();
     let output_supply = CellOutput::new_builder()
-        .capacity(((1000 - 16) * ONE_CKB).pack())
+        .capacity(((1000 - 16) * ONE_CAPACITY_SHANNONS).pack())
         .lock(sender.clone())
         .type_(Some(info_cell_type_script).pack())
         .build();
 
     let mint_receiver = build_sighash_script(ACCOUNT1_ARG);
     let mint_output = CellOutput::new_builder()
-        .capacity((16 * ONE_CKB).pack())
+        .capacity((16 * ONE_CAPACITY_SHANNONS).pack())
         .type_(Some(sudt_script).pack())
         .lock(mint_receiver.clone())
         .build();
@@ -1404,7 +1404,7 @@ fn test_omnilock_sudt_supply() {
     let placeholder_witness = cfg.placeholder_witness(unlock_mode).unwrap();
     let mut balancer =
         CapacityBalancer::new_simple(sender.clone(), placeholder_witness.clone(), FEE_RATE);
-    balancer.force_small_change_as_fee = Some(ONE_CKB); // TODO: use correct transaction fee
+    balancer.force_small_change_as_fee = Some(ONE_CAPACITY_SHANNONS); // TODO: use correct transaction fee
 
     let mut cell_collector = ctx.to_live_cells_context();
     let account0_key = secp256k1::SecretKey::from_slice(ACCOUNT0_KEY.as_bytes()).unwrap();

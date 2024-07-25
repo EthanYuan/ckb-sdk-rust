@@ -11,8 +11,8 @@ use thiserror::Error;
 
 use crate::{
     constants::{
-        MULTISIG_GROUP_OUTPUT_LOC, MULTISIG_TYPE_HASH, ONE_CKB, SIGHASH_GROUP_OUTPUT_LOC,
-        SIGHASH_TYPE_HASH,
+        MULTISIG_GROUP_OUTPUT_LOC, MULTISIG_TYPE_HASH, ONE_CAPACITY_SHANNONS,
+        SIGHASH_GROUP_OUTPUT_LOC, SIGHASH_TYPE_HASH,
     },
     traits::{
         CellCollector, CellCollectorError, CellDepResolver, CellQueryOptions,
@@ -190,7 +190,7 @@ impl Context {
         let input = CellInput::new(out_point, 0);
         let capacity = capacity.unwrap_or_else(|| {
             let lock_size = 33 + lock_script.args().raw_data().len();
-            Capacity::bytes((8 + lock_size) * ONE_CKB as usize)
+            Capacity::bytes((8 + lock_size) * ONE_CAPACITY_SHANNONS as usize)
                 .unwrap()
                 .as_u64()
         });

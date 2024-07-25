@@ -13,7 +13,7 @@ use ckb_types::{
 };
 
 use crate::constants::{
-    CHEQUE_CELL_SINCE, DAO_TYPE_HASH, MULTISIG_TYPE_HASH, ONE_CKB, SIGHASH_TYPE_HASH,
+    CHEQUE_CELL_SINCE, DAO_TYPE_HASH, MULTISIG_TYPE_HASH, ONE_CAPACITY_SHANNONS, SIGHASH_TYPE_HASH,
 };
 use crate::traits::SecpCkbRawKeySigner;
 use crate::tx_builder::{
@@ -132,14 +132,14 @@ fn test_transfer_from_sighash() {
     let ctx = init_context(
         Vec::new(),
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
-            (sender.clone(), Some(300 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
     let output = CellOutput::new_builder()
-        .capacity((120 * ONE_CKB).pack())
+        .capacity((120 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = CapacityTransferBuilder::new(vec![(output.clone(), Bytes::default())]);
@@ -197,14 +197,14 @@ fn test_transfer_from_multisig() {
     let ctx = init_context(
         Vec::new(),
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
-            (sender.clone(), Some(300 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
     let output = CellOutput::new_builder()
-        .capacity((120 * ONE_CKB).pack())
+        .capacity((120 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = CapacityTransferBuilder::new(vec![(output.clone(), Bytes::default())]);
@@ -261,14 +261,14 @@ fn test_transfer_from_acp() {
     let ctx = init_context(
         vec![(ACP_BIN, true)],
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
-            (sender.clone(), Some(300 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
     let output = CellOutput::new_builder()
-        .capacity((120 * ONE_CKB).pack())
+        .capacity((120 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = CapacityTransferBuilder::new(vec![(output.clone(), Bytes::default())]);
@@ -322,14 +322,14 @@ fn test_transfer_to_acp() {
     let ctx = init_context(
         vec![(ACP_BIN, true)],
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
-            (sender.clone(), Some(300 * ONE_CKB)),
-            (receiver.clone(), Some(99 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
+            (receiver.clone(), Some(99 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
-    let acp_receiver = AcpTransferReceiver::new(receiver.clone(), 150 * ONE_CKB);
+    let acp_receiver = AcpTransferReceiver::new(receiver.clone(), 150 * ONE_CAPACITY_SHANNONS);
     let builder = AcpTransferBuilder::new(vec![acp_receiver]);
     let placeholder_witness = WitnessArgs::new_builder()
         .lock(Some(Bytes::from(vec![0u8; 65])).pack())
@@ -359,15 +359,15 @@ fn test_transfer_to_acp() {
     assert_eq!(tx.inputs().len(), 3);
     let input_cells = vec![
         CellOutput::new_builder()
-            .capacity((99 * ONE_CKB).pack())
+            .capacity((99 * ONE_CAPACITY_SHANNONS).pack())
             .lock(receiver.clone())
             .build(),
         CellOutput::new_builder()
-            .capacity((100 * ONE_CKB).pack())
+            .capacity((100 * ONE_CAPACITY_SHANNONS).pack())
             .lock(sender.clone())
             .build(),
         CellOutput::new_builder()
-            .capacity((200 * ONE_CKB).pack())
+            .capacity((200 * ONE_CAPACITY_SHANNONS).pack())
             .lock(sender.clone())
             .build(),
     ];
@@ -376,7 +376,7 @@ fn test_transfer_to_acp() {
     }
     assert_eq!(tx.outputs().len(), 2);
     let acp_output = CellOutput::new_builder()
-        .capacity(((99 + 150) * ONE_CKB).pack())
+        .capacity(((99 + 150) * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     assert_eq!(tx.output(0).unwrap(), acp_output);
@@ -408,14 +408,14 @@ fn test_cheque_claim() {
     let mut ctx = init_context(
         vec![(CHEQUE_BIN, true), (SUDT_BIN, false)],
         vec![
-            (receiver.clone(), Some(100 * ONE_CKB)),
-            (receiver.clone(), Some(200 * ONE_CKB)),
+            (receiver.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (receiver.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
     let receiver_input = CellInput::new(random_out_point(), 0);
     let receiver_output = CellOutput::new_builder()
-        .capacity((200 * ONE_CKB).pack())
+        .capacity((200 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver.clone())
         .type_(Some(type_script.clone()).pack())
         .build();
@@ -429,7 +429,7 @@ fn test_cheque_claim() {
 
     let cheque_input = CellInput::new(random_out_point(), 0);
     let cheque_output = CellOutput::new_builder()
-        .capacity((220 * ONE_CKB).pack())
+        .capacity((220 * ONE_CAPACITY_SHANNONS).pack())
         .lock(cheque_script)
         .type_(Some(type_script).pack())
         .build();
@@ -475,7 +475,7 @@ fn test_cheque_claim() {
         cheque_output,
         receiver_output.clone(),
         CellOutput::new_builder()
-            .capacity((100 * ONE_CKB).pack())
+            .capacity((100 * ONE_CAPACITY_SHANNONS).pack())
             .lock(receiver.clone())
             .build(),
     ];
@@ -485,7 +485,7 @@ fn test_cheque_claim() {
     assert_eq!(tx.outputs().len(), 3);
     assert_eq!(tx.output(0).unwrap(), receiver_output);
     let sender_output = CellOutput::new_builder()
-        .capacity((220 * ONE_CKB).pack())
+        .capacity((220 * ONE_CAPACITY_SHANNONS).pack())
         .lock(sender)
         .build();
     assert_eq!(tx.output(1).unwrap(), sender_output);
@@ -528,15 +528,15 @@ fn test_cheque_withdraw() {
     let mut ctx = init_context(
         vec![(CHEQUE_BIN, true), (SUDT_BIN, false)],
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
     let cheque_out_point = random_out_point();
     let cheque_input = CellInput::new(cheque_out_point.clone(), CHEQUE_CELL_SINCE);
     let cheque_output = CellOutput::new_builder()
-        .capacity((220 * ONE_CKB).pack())
+        .capacity((220 * ONE_CAPACITY_SHANNONS).pack())
         .lock(cheque_script)
         .type_(Some(type_script).pack())
         .build();
@@ -577,7 +577,7 @@ fn test_cheque_withdraw() {
     let input_cells = vec![
         cheque_output.clone(),
         CellOutput::new_builder()
-            .capacity((100 * ONE_CKB).pack())
+            .capacity((100 * ONE_CAPACITY_SHANNONS).pack())
             .lock(sender.clone())
             .build(),
     ];
@@ -613,13 +613,13 @@ fn test_dao_deposit() {
     let ctx = init_context(
         Vec::new(),
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
-            (sender.clone(), Some(300 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
-    let deposit_receiver = DaoDepositReceiver::new(sender.clone(), 120 * ONE_CKB);
+    let deposit_receiver = DaoDepositReceiver::new(sender.clone(), 120 * ONE_CAPACITY_SHANNONS);
     let builder = DaoDepositBuilder::new(vec![deposit_receiver]);
     let placeholder_witness = WitnessArgs::new_builder()
         .lock(Some(Bytes::from(vec![0u8; 65])).pack())
@@ -650,7 +650,7 @@ fn test_dao_deposit() {
     }
     assert_eq!(tx.outputs().len(), 2);
     let deposit_output = CellOutput::new_builder()
-        .capacity((120 * ONE_CKB).pack())
+        .capacity((120 * ONE_CAPACITY_SHANNONS).pack())
         .lock(sender.clone())
         .type_(Some(build_dao_script()).pack())
         .build();
@@ -678,9 +678,9 @@ fn test_dao_prepare() {
     let mut ctx = init_context(
         Vec::new(),
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
-            (sender.clone(), Some(300 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
@@ -691,7 +691,7 @@ fn test_dao_prepare() {
 
     let deposit_input = CellInput::new(random_out_point(), 0);
     let deposit_output = CellOutput::new_builder()
-        .capacity((220 * ONE_CKB).pack())
+        .capacity((220 * ONE_CAPACITY_SHANNONS).pack())
         .lock(sender.clone())
         .type_(Some(build_dao_script()).pack())
         .build();
@@ -767,9 +767,9 @@ fn test_dao_withdraw() {
     let mut ctx = init_context(
         Vec::new(),
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
-            (sender.clone(), Some(300 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
@@ -812,7 +812,7 @@ fn test_dao_withdraw() {
     let prepare_out_point = random_out_point();
     let prepare_input = CellInput::new(prepare_out_point.clone(), since.value());
     let prepare_output = CellOutput::new_builder()
-        .capacity((220 * ONE_CKB).pack())
+        .capacity((220 * ONE_CAPACITY_SHANNONS).pack())
         .lock(sender.clone())
         .type_(Some(build_dao_script()).pack())
         .build();
@@ -907,9 +907,9 @@ fn test_udt_issue() {
     let ctx = init_context(
         vec![(SUDT_BIN, false)],
         vec![
-            (owner.clone(), Some(100 * ONE_CKB)),
-            (owner.clone(), Some(200 * ONE_CKB)),
-            (owner.clone(), Some(300 * ONE_CKB)),
+            (owner.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (owner.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+            (owner.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
@@ -1001,14 +1001,14 @@ fn test_udt_transfer() {
     let mut ctx = init_context(
         vec![(ACP_BIN, true), (SUDT_BIN, false)],
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
     let sender_input = CellInput::new(random_out_point(), 0);
     let sender_output = CellOutput::new_builder()
-        .capacity((200 * ONE_CKB).pack())
+        .capacity((200 * ONE_CAPACITY_SHANNONS).pack())
         .lock(sender.clone())
         .type_(Some(type_script.clone()).pack())
         .build();
@@ -1022,7 +1022,7 @@ fn test_udt_transfer() {
         .build();
     let receiver_input = CellInput::new(random_out_point(), 0);
     let receiver_output = CellOutput::new_builder()
-        .capacity((200 * ONE_CKB).pack())
+        .capacity((200 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver_acp_lock.clone())
         .type_(Some(type_script.clone()).pack())
         .build();

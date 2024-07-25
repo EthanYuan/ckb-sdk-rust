@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use ckb_types::core::{DepType, ScriptHashType};
 
-use crate::constants::ONE_CKB;
+use crate::constants::ONE_CAPACITY_SHANNONS;
 use crate::test_util::{random_out_point, Context};
 use crate::types::xudt_rce_mol::{RCCellVecBuilder, RCDataBuilder, RCDataUnion, SmtProofEntryVec};
 use crate::unlock::rc_data::ListType;
@@ -83,7 +83,7 @@ fn build_script(
 
     let lock_script = build_sighash_script(args.clone());
     // it not needed to set "type script" when is_type is false
-    let capacity = bin.len() as u64 * ONE_CKB;
+    let capacity = bin.len() as u64 * ONE_CAPACITY_SHANNONS;
     let output = CellOutput::new_builder()
         .capacity(capacity.pack())
         .lock(lock_script)

@@ -11,7 +11,7 @@ use ckb_types::{
 
 use crate::test_util::Context;
 use crate::{
-    constants::ONE_CKB,
+    constants::ONE_CAPACITY_SHANNONS,
     tests::{build_sighash_script, init_context, ACCOUNT2_ARG, FEE_RATE},
     traits::TransactionDependencyProvider,
     tx_builder::{
@@ -101,11 +101,11 @@ fn test_change_enough(loops: u64) {
 
     let ctx: &'static Context = Box::leak(Box::new(init_context(
         vec![(CYCLE_BIN, true)],
-        vec![(sender.clone(), Some(200 * ONE_CKB))],
+        vec![(sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS))],
     )));
 
     let output = CellOutput::new_builder()
-        .capacity((140 * ONE_CKB).pack())
+        .capacity((140 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = CapacityTransferBuilder::new(vec![(output.clone(), Bytes::default())]);
@@ -147,17 +147,17 @@ fn vsize_big_and_fee_enough() {
 
     let ctx: &'static Context = Box::leak(Box::new(init_context(
         vec![(CYCLE_BIN, true)],
-        vec![(sender.clone(), Some(200 * ONE_CKB + 123_456))],
+        vec![(sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS + 123_456))],
     )));
 
     let output = CellOutput::new_builder()
-        .capacity((200 * ONE_CKB).pack())
+        .capacity((200 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = CapacityTransferBuilder::new(vec![(output.clone(), Bytes::default())]);
     let placeholder_witness = WitnessArgs::default();
     let mut balancer = CapacityBalancer::new_simple(sender.clone(), placeholder_witness, FEE_RATE);
-    balancer.set_max_fee(Some(ONE_CKB));
+    balancer.set_max_fee(Some(ONE_CAPACITY_SHANNONS));
 
     let mut cell_collector = ctx.to_live_cells_context();
     let unlockers = build_cycle_unlockers(loops);
@@ -193,11 +193,11 @@ fn vsize_big_and_fee_not_enough() {
 
     let ctx: &'static Context = Box::leak(Box::new(init_context(
         vec![(CYCLE_BIN, true)],
-        vec![(sender.clone(), Some(200 * ONE_CKB + 456))],
+        vec![(sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS + 456))],
     )));
 
     let output = CellOutput::new_builder()
-        .capacity((200 * ONE_CKB).pack())
+        .capacity((200 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = CapacityTransferBuilder::new(vec![(output, Bytes::default())]);
@@ -227,13 +227,13 @@ fn vsize_big_and_can_find_more_capacity() {
     let ctx: &'static Context = Box::leak(Box::new(init_context(
         vec![(CYCLE_BIN, true)],
         vec![
-            (sender.clone(), Some(200 * ONE_CKB + 286)), // 286 is fee calculated from tx_size
-            (sender.clone(), Some(70 * ONE_CKB)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS + 286)), // 286 is fee calculated from tx_size
+            (sender.clone(), Some(70 * ONE_CAPACITY_SHANNONS)),
         ],
     )));
 
     let output = CellOutput::new_builder()
-        .capacity((200 * ONE_CKB).pack())
+        .capacity((200 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = CapacityTransferBuilder::new(vec![(output.clone(), Bytes::default())]);
@@ -317,13 +317,13 @@ fn vsize_big_and_cannot_find_more_capacity() {
     let ctx: &'static Context = Box::leak(Box::new(init_context(
         vec![(CYCLE_BIN, true)],
         vec![
-            (sender.clone(), Some(200 * ONE_CKB + 286)), // 286 is fee calculated from tx_size
-            (sender.clone(), Some(49 * ONE_CKB)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS + 286)), // 286 is fee calculated from tx_size
+            (sender.clone(), Some(49 * ONE_CAPACITY_SHANNONS)),
         ],
     )));
 
     let output = CellOutput::new_builder()
-        .capacity((200 * ONE_CKB).pack())
+        .capacity((200 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let builder = CapacityTransferBuilder::new(vec![(output, Bytes::default())]);

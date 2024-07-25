@@ -1,7 +1,7 @@
 use ckb_types::{packed::CellOutput, prelude::*};
 
 use crate::{
-    constants::{self, ONE_CKB},
+    constants::{self, ONE_CAPACITY_SHANNONS},
     tests::{build_sighash_script, init_context, ACCOUNT1_ARG, ACCOUNT1_KEY, FEE_RATE},
     transaction::{
         builder::{CkbTransactionBuilder, SimpleTransactionBuilder},
@@ -15,14 +15,17 @@ use crate::{
 #[test]
 fn test_deploy_id() {
     let sender = build_sighash_script(ACCOUNT1_ARG);
-    let ctx = init_context(Vec::new(), vec![(sender.clone(), Some(10_0000 * ONE_CKB))]);
+    let ctx = init_context(
+        Vec::new(),
+        vec![(sender.clone(), Some(10_0000 * ONE_CAPACITY_SHANNONS))],
+    );
 
     let network_info = NetworkInfo::testnet();
     let type_script =
         ScriptId::new_type(constants::TYPE_ID_CODE_HASH.clone()).dummy_type_id_script();
 
     let output = CellOutput::new_builder()
-        .capacity((120 * ONE_CKB).pack())
+        .capacity((120 * ONE_CAPACITY_SHANNONS).pack())
         .lock(sender.clone())
         .type_(Some(type_script).pack())
         .build();

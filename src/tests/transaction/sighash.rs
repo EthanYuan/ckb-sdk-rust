@@ -1,7 +1,7 @@
 use ckb_types::{packed::CellOutput, prelude::*};
 
 use crate::{
-    constants::ONE_CKB,
+    constants::ONE_CAPACITY_SHANNONS,
     tests::{
         build_sighash_script, init_context, ACCOUNT1_ARG, ACCOUNT1_KEY, ACCOUNT2_ARG, FEE_RATE,
     },
@@ -21,16 +21,16 @@ fn test_transfer_from_sighash() {
     let ctx = init_context(
         Vec::new(),
         vec![
-            (sender.clone(), Some(100 * ONE_CKB)),
-            (sender.clone(), Some(200 * ONE_CKB)),
-            (sender.clone(), Some(300 * ONE_CKB)),
+            (sender.clone(), Some(100 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(200 * ONE_CAPACITY_SHANNONS)),
+            (sender.clone(), Some(300 * ONE_CAPACITY_SHANNONS)),
         ],
     );
 
     let network_info = NetworkInfo::testnet();
 
     let output = CellOutput::new_builder()
-        .capacity((120 * ONE_CKB).pack())
+        .capacity((120 * ONE_CAPACITY_SHANNONS).pack())
         .lock(receiver)
         .build();
     let configuration =
@@ -71,7 +71,7 @@ fn test_transfer_from_sighash() {
     assert_eq!(tx.output(0).unwrap(), output);
     assert_eq!(tx.output(1).unwrap().lock(), sender);
     let change_capacity: u64 = tx.output(1).unwrap().capacity().unpack();
-    let fee = (100 + 200 - 120) * ONE_CKB - change_capacity;
+    let fee = (100 + 200 - 120) * ONE_CAPACITY_SHANNONS - change_capacity;
     assert_eq!(tx.data().as_reader().serialized_size_in_block() as u64, fee);
 
     ctx.verify(tx, FEE_RATE).unwrap();
